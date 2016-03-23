@@ -1,3 +1,5 @@
+//Alunos: Emanuel Cordioli e Roger Januário
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -25,6 +27,7 @@ void evolve(void *u, int w, int h)
     int x, y, x1, y1;
 
     //computes evolution
+    #pragma omp parallel for private(x,y,x1,y1)
     for (y = 0; y < h; y++){
         for (x = 0; x < w; x++){
 	        int n = 0;
@@ -49,6 +52,7 @@ void evolve(void *u, int w, int h)
 	    }
     }
     //copies evolution
+    #pragma omp parallel for private(x,y)
     for (y = 0; y < h; y++){
         for (x = 0; x < w; x++){
 	        univ[y][x] = new[y][x];

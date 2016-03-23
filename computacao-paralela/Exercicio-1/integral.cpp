@@ -1,3 +1,5 @@
+//Alunos: Emanuel Cordioli e Roger Januário
+
 //Baseado em http://rosettacode.org/wiki/Numerical_integration#C.2B.2B
 #include <iostream>
 #include <cstdlib>
@@ -10,6 +12,7 @@ template<typename Method, typename F, typename Float>
 {
   double s = 0;
   double h = (b-a)/steps;
+   #pragma omp parallel for reduction(+:s)
   for (int i = 0; i < steps; ++i)
     s += m(f, a + h*i, h);
   return h*s;
@@ -56,16 +59,19 @@ int main(int argc, char *argv[]){
     }
 
     mytime(&inicio);
+    //#pragma omp parallel
     resposta = integrate(quad, 0.0, 1.0, rets, rectangular(rectangular::left));
     mytime(&fim);
     std::cout << "Integral de x^2 de 0 a 1 estimada em " << resposta << " em " << fim - inicio << " segundos." << std::endl;
 
     mytime(&inicio);
+    //#pragma omp parallel
     resposta = integrate(lin, 0.0, 10.0, rets*10, rectangular(rectangular::left));
     mytime(&fim);
     std::cout << "Integral de x+2 de 0 a 10 estimada em " << resposta << " em " << fim - inicio << " segundos." << std::endl;
 
     mytime(&inicio);
+    //#pragma omp parallel 
     resposta = integrate(cubo, 3.0, 7.0, rets*100, rectangular(rectangular::left));
     mytime(&fim);
     std::cout << "Integral de x^3+9x^2+18x+27 de 3 a 7 estimada em " << resposta << " em " << fim - inicio << " segundos." << std::endl;

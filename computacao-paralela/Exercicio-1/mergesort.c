@@ -1,3 +1,5 @@
+//Alunos: Emanuel Cordioli e Roger Januário
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +23,7 @@ int main(int argc, char** argv) {
 
     //setup
     if (argc>=2) size = atoi(argv[1]);
-    printf("Ordenando um vetor de %d posicoes.\n", size);
+    printf("OMP Ordenando um vetor de %d posicoes.\n", size);
     a = (int*)calloc(size, sizeof(int));
     temp = (int*)calloc(size, sizeof(int));
     srand(26);
@@ -31,7 +33,11 @@ int main(int argc, char** argv) {
 
     //sort
 	mytime(&inicio);
-    mergesort(a, size, temp);
+	#pragma omp parallel 
+	{
+ 		#pragma omp single
+ 		mergesort(a, size, temp);
+    }
     mytime(&fim);
     printf("Ordenacao realizada em %lf s.\n",fim-inicio);
 
@@ -48,6 +54,7 @@ void verify(int* a, int size) {
 	int sorted = 1;
 	int i;
 
+	#pragma omp parallel for reduction(&:sorted) 
 	for (i = 0; i < size-1; ++i) sorted &= (a[i] <= a[i+1]);
 
     if (sorted) printf("Vetor corretamente ordenado.\n");
@@ -95,8 +102,13 @@ void mergesort(int* a, int size, int* temp) {
 			return;
 		}
     } else {                //mergesort
+        #pragma omp task firstprivate(a, size, temp) if (size > 1000)
         mergesort(a, size/2, temp);
+        
+        #pragma omp task firstprivate(a, size, temp) if (size > 1000)
         mergesort(a + size/2, size - size/2, temp + size/2); //a + size/2: pointer arithmetic
+        
+        #pragma omp taskwait
         merge(a, size, temp);
     }
     return;

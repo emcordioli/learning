@@ -1,3 +1,5 @@
+//Alunos: Emanuel Cordioli e Roger Januário
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>       //não esquecer de passar -lm na compilação
@@ -9,6 +11,7 @@ double pi ( int amostras )
     double x, y, valor;
 	unsigned long acertos = 0, i;
 
+    #pragma omp parallel for private(x,y) reduction(+:acertos)
     for ( i = 0; i < amostras; i++ ) {
         x = rand() / ((double)(RAND_MAX));
         y = rand() / ((double)(RAND_MAX));
